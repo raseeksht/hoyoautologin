@@ -8,7 +8,7 @@
     Honkai StarRail
 
 ## Installation
-prerequisite: python and pip (in case of no python and pip, is the executable file [main.zip](#))
+prerequisite: python and pip (in case of no python and pip, is the executable file [main.exe]([#](https://github.com/raseeksht/hoyoautologin/releases)))
 
 To install the tool you need to follow these steps:
     
