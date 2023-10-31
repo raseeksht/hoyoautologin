@@ -20,9 +20,12 @@ def baseDaily(reqUrl,payload,headers):
     if not headers.get('Cookie'):
         print("[-] cookie not found")
         sys.exit()
+    print(payload)
+    print(headers)
 
     response = requests.post(reqUrl, data=payload,  headers=headers)
-    return response.json()
+    print(response.json())
+    return response
     
 
 
@@ -41,7 +44,7 @@ def honkaiDaily():
 
     response = baseDaily(reqUrl,payload,headers)
 
-    print(response['message'],end="\n\n")
+    print(response.json()['message'],end="\n\n")
 
 
 def genshinDaily():
@@ -57,18 +60,23 @@ def genshinDaily():
 
     response = baseDaily(reqUrl,payload, headers)
 
-    print(response['message'],end="\n\n")
+    print(response.json()['message'],end="\n\n")
 
-if __name__ == '__main__':
-    dateFile = "date.txt"
-    dateToday = datetime.now().strftime("%D")
-
+def checkAlreadyLogged():
     if os.path.exists(dateFile):
         with open(dateFile) as f:
             prevdate = f.read()
             if prevdate == dateToday:
                 print("Already Logged In")
                 sys.exit()
+    return 1
+
+if __name__ == '__main__':
+    dateFile = "date.txt"
+    dateToday = datetime.now().strftime("%D")
+
+    # checkAlreadyLogged()
+
     try:
         honkaiDaily()
         genshinDaily()
