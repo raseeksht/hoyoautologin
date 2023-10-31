@@ -27,7 +27,8 @@ in the console tab, write `document.cookie` and press enter and you will get the
 copy the cookie (without quotation mark ('') ) and use it in .env.example file
 Note: Cookie are store in your pc and are not shared
 ```
-![Untitled](https://github.com/s21e25pf/test/assets/56507385/b38da71d-87fa-4b61-9eec-bf213d2b1594)
+
+![Untitled](https://github.com/raseeksht/hoyoautologin/assets/39650487/9e398610-a9a5-4ec3-b281-ce5fb9ffd9b3)
 
 edit .env.example 
 ```
@@ -36,10 +37,12 @@ paste the cookie from hoyolab in `Cookie=`
 ```
 
 
+
 ```
 if you play genshin and honkai on seperate account get the cookie from both account and paste in `HonkaiCookie` and `GenshinCookie`
 ```
-![Untitled123](https://github.com/s21e25pf/test/assets/56507385/510f5f79-58ce-47c5-9157-fe6044c9f544)
+![Untitled123](https://github.com/raseeksht/hoyoautologin/assets/39650487/6cb69cc6-b589-487b-a9e1-ff44fa865ee5)
+
 
 After you finish editing rename `.env.example` file to `.env`
 
