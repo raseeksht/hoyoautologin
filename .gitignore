@@ -1,2 +1,5 @@
 .env
 date.txt
+build/
+dist/
+main.spec

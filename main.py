@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from datetime import datetime
 import sys
+import shutil
 
 load_dotenv()
 
@@ -11,6 +12,8 @@ headers = {
     "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36",
     "Content-Type": "application/json",
 }
+
+
 
 def baseDaily(reqUrl,payload,headers):
     if not payload.get("act_id"):
@@ -20,11 +23,9 @@ def baseDaily(reqUrl,payload,headers):
     if not headers.get('Cookie'):
         print("[-] cookie not found")
         sys.exit()
-    print(payload)
-    print(headers)
 
-    response = requests.post(reqUrl, data=payload,  headers=headers)
-    print(response.json())
+    response = requests.post(reqUrl, data=json.dumps(payload),  headers=headers)
+
     return response
     
 
@@ -40,7 +41,9 @@ def honkaiDaily():
         "lang": "en-us"
     }
 
+
     headers["Cookie"] = cookie
+
 
     response = baseDaily(reqUrl,payload,headers)
 
@@ -55,6 +58,7 @@ def genshinDaily():
         "act_id": os.getenv("GenshinActId"),
         "lang": "en-us"
     }
+    # print(payload)
 
     headers["Cookie"] = cookie
 
@@ -62,7 +66,7 @@ def genshinDaily():
 
     print(response.json()['message'],end="\n\n")
 
-def checkAlreadyLogged():
+def checkAlreadyLogged(dateFile):
     if os.path.exists(dateFile):
         with open(dateFile) as f:
             prevdate = f.read()
@@ -71,11 +75,26 @@ def checkAlreadyLogged():
                 sys.exit()
     return 1
 
+# def checkEnvFile(logDir):
+#     envFile = os.path.join(logDir,".env")
+#     if not os.path.exists(envFile):
+#         shutil.copy(".env",os.path.join(logDir,".env"))           
+#     else:
+#         print("envfile already exists")
+
+
+
+
 if __name__ == '__main__':
-    dateFile = "date.txt"
+    username = os.getenv("USERNAME")
+    logDir = fr"C:\Users\{username}\AppData\Local\hoyoAutoLogin"
+
+    if not os.path.exists(logDir):
+        os.mkdir(logDir)
+    dateFile = os.path.join(logDir,"date.txt")
     dateToday = datetime.now().strftime("%D")
 
-    # checkAlreadyLogged()
+    checkAlreadyLogged(dateFile)
 
     try:
         honkaiDaily()
@@ -85,3 +104,5 @@ if __name__ == '__main__':
             f.write(dateToday)
     except Exception as e:
         print(f"Error Occured: {e}")
+    
+    # input("Enter to exit...")
