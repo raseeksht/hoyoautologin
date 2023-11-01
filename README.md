@@ -60,3 +60,7 @@ pyinstaller main.py --onefile
 
 
 executable file will be created in `dist/`
+
+now you can move dist/main.exe to startup folder and the daily login request will be sent automatically when your device is turned on each day
+
+or, you can deploy the script with little modification to server and use crontab to run script daily
