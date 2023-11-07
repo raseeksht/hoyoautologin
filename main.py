@@ -120,12 +120,13 @@ if __name__ == '__main__':
 
     
     # checkAlreadyLogged(dateFile)
-    daily_login(['genshin','honkai'])
 
+    games = []
+    if getenv("GenshinLogin")=='1': games.append("genshin")
+    if getenv("HonkaiLogin")=='1': games.append("honkai")
     try:
-        # honkaiDaily() if getenv("HonkaiLogin") == '1' else ''
-        # genshinDaily() if getenv("GenshinLogin") == '1' else ''
-        # daily_login(['genshin','honkai'])
+        
+        daily_login(games)
         dateToday = datetime.now().strftime("%D")
         if getenv("HonkaiLogin")=='1' or getenv("GenshinLogin")=='1':
             with open(dateFile,"w") as f:
