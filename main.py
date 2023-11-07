@@ -5,6 +5,9 @@ import os
 from datetime import datetime
 import sys
 import shutil
+from constants import urls
+from discord import SyncWebhook,Embed
+
 
 
 
@@ -29,40 +32,33 @@ def baseDaily(reqUrl,payload,headers):
     
 
 
-def honkaiDaily():
-    print("Daily Signin Honkai StarRail:")
+def daily_login(games):
+    for game in games:
+        print(f"{urls[game]['title']}:")
 
-    reqUrl = "https://sg-public-api.hoyolab.com/event/luna/os/sign"
-    cookie = getenv("Cookie") if getenv("SameAccount") else getenv("HonkaiCookie")
+        reqUrl = urls[game]['signUrl']
+        infoUrl = urls[game]['infoUrl']
+        rewardUrl = urls[game]['rewardsUrl']
+        cookie = getenv("Cookie") if getenv("SameAccount") else getenv(f"{game.capitalize()}Cookie")
 
-    payload = {
-        "act_id": getenv("HonkaiActId"),
-        "lang": "en-us"
-    }
+        payload = {
+            "act_id": urls[game]['act_id'],
+            "lang": "en-us"
+        }
 
+        headers["Cookie"] = cookie
+        response = baseDaily(reqUrl,payload,headers)
+        writeLog(os.path.join(logDir,f"{game}.txt"),response.json())
 
-    headers["Cookie"] = cookie
+        infoResp = requests.get(infoUrl,headers=headers)
+        total_days = infoResp.json()['data']['total_sign_day']
 
+        rewardResp = requests.get(rewardUrl,headers=headers)
+        today_reward = rewardResp.json()['data']['awards'][total_days-1]
 
-    response = baseDaily(reqUrl,payload,headers)
+        sendDiscordMessage(response.json()['message'],today_reward,total_days,game=game)
+        print(f"{response.json()['message']}: {today_reward['name']} * {today_reward['cnt']}",end="\n\n")
 
-    print(response.json()['message'],end="\n\n")
-
-
-def genshinDaily():
-    print("Daily Signin Genshin Impact:")
-    reqUrl = "https://sg-hk4e-api.hoyolab.com/event/sol/sign?lang=en-us"
-    cookie = getenv("Cookie") if getenv("SameAccount") else getenv("GenshinCookie")
-    payload = {
-        "act_id": os.getenv("GenshinActId"),
-        "lang": "en-us"
-    }
-    headers["Cookie"] = cookie
-    response = baseDaily(reqUrl,payload, headers)
-    # if response.json()['message'].lower() == 'ok':
-    #     with open(dateFile,"w") as f:
-    #         f.write(dateToday)
-    print(response.json()['message'],end="\n\n")
 
 def checkAlreadyLogged(dateFile):
     if os.path.exists(dateFile):
@@ -92,6 +88,22 @@ def getenv(var):
     return os.getenv(var)
 
 
+
+def writeLog(filepath,data):
+    with open(filepath,"w") as f:
+        f.write(json.dumps(data,indent=4))
+
+def sendDiscordMessage(message,reward,total_days,game):
+    webhook = SyncWebhook.from_url(getenv("DiscordWebHookUrl"))
+    embed = Embed(title=urls[game]['title'],color=urls[game]['color'],description=message)
+    embed.add_field(name="Today's Reward",value=f"{reward['name']} * {reward['cnt']}",inline=True)
+    embed.add_field(name="Total Checkins",value=total_days,inline=True)
+    embed.set_thumbnail(url=reward['icon'])
+    webhook.send(embed=embed,username=urls[game]['username'],avatar_url=urls[game]['icon'])
+
+
+
+
 if __name__ == '__main__':
     username = getenv("USERNAME")
     logDir = fr"C:\Users\{username}\AppData\Local\hoyoAutoLogin"
@@ -106,16 +118,21 @@ if __name__ == '__main__':
     dateFile = os.path.join(logDir,"date.txt")
     dateToday = datetime.now().strftime("%D")
 
-    checkAlreadyLogged(dateFile)
+    
+    # checkAlreadyLogged(dateFile)
+    daily_login(['genshin','honkai'])
 
     try:
-        honkaiDaily() if getenv("HonkaiLogin") == '1' else ''
-        genshinDaily() if getenv("GenshinLogin") == '1' else ''
+        # honkaiDaily() if getenv("HonkaiLogin") == '1' else ''
+        # genshinDaily() if getenv("GenshinLogin") == '1' else ''
+        # daily_login(['genshin','honkai'])
         dateToday = datetime.now().strftime("%D")
         if getenv("HonkaiLogin")=='1' or getenv("GenshinLogin")=='1':
             with open(dateFile,"w") as f:
                 f.write(dateToday)
     except Exception as e:
         print(f"Error Occured: {e}")
+
+    
     
     showExitDialogue()
